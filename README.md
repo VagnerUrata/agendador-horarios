@@ -105,7 +105,7 @@ src/main/java/com/javag/agendador_horarios
 ### 1. Clonar o repositório
 
 ```bash
-git clone https://github.com/seu-usuario/seu-repo.git
+git clone https://github.com/VagnerUrata/agendador-horarios.git
 ```
 
 ### 2. Entrar na pasta
