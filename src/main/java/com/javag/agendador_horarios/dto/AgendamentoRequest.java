@@ -23,4 +23,10 @@ public class AgendamentoRequest {
 
     @NotBlank(message = "Serviço é obrigatório")
     private String servico;
+
+    @NotBlank(message = "Profissional é obrigatório")
+    private String profissional;
+
+    @NotBlank(message = "Telefone é obrigatório")
+    private String telefone;
 }

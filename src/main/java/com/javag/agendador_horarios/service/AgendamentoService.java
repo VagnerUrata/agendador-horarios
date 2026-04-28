@@ -66,6 +66,8 @@ public class AgendamentoService {
         Agendamento agendamento = new Agendamento();
         agendamento.setServico(request.getServico());
         agendamento.setCliente(request.getCliente());
+        agendamento.setProfissional(request.getProfissional());
+        agendamento.setTelefone(request.getTelefone());
         agendamento.setDataHoraAgendamento(request.getDataHoraAgendamento());
         return agendamento;
     }
