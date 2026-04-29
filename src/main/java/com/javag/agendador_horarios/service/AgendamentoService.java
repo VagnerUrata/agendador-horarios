@@ -2,6 +2,7 @@ package com.javag.agendador_horarios.service;
 
 import com.javag.agendador_horarios.dto.AgendamentoRequest;
 import com.javag.agendador_horarios.dto.AgendamentoResponse;
+import com.javag.agendador_horarios.exception.AgendamentoException;
 import com.javag.agendador_horarios.infrastructure.entity.Agendamento;
 import com.javag.agendador_horarios.infrastructure.repository.AgendamentoRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,7 @@ public class AgendamentoService {
         Agendamento conflito = agendamentoRepository.findByServicoAndDataHoraAgendamentoBetween(agendamento.getServico(), inicio, fim);
 
         if (conflito != null) {
-            throw new RuntimeException("Horário já está preenchido");
+            throw new AgendamentoException("Horário já está preenchido");
         }
 
         Agendamento salvo = agendamentoRepository.save(agendamento);
@@ -51,7 +52,7 @@ public class AgendamentoService {
         Agendamento agenda = agendamentoRepository.findByDataHoraAgendamentoAndCliente(dataHoraAgendamento, cliente);
 
         if (agenda == null) {
-            throw new RuntimeException("Horário não está preenchido");
+            throw new AgendamentoException("Horário não está preenchido");
         }
 
         Agendamento atualizado = toEntity(request);
