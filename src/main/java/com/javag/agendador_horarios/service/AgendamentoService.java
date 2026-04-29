@@ -1,5 +1,8 @@
 package com.javag.agendador_horarios.service;
 
+import com.javag.agendador_horarios.dto.AgendamentoRequest;
+import com.javag.agendador_horarios.dto.AgendamentoResponse;
+import com.javag.agendador_horarios.exception.AgendamentoException;
 import com.javag.agendador_horarios.infrastructure.entity.Agendamento;
 import com.javag.agendador_horarios.infrastructure.repository.AgendamentoRepository;
 import lombok.RequiredArgsConstructor;
@@ -8,7 +11,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -16,36 +18,62 @@ public class AgendamentoService {
 
     private final AgendamentoRepository agendamentoRepository;
 
-    public Agendamento salvarAgendamento(Agendamento agendamento){
-        LocalDateTime horaAgendamento = agendamento.getDataHoraAgendamento();
-        LocalDateTime horafim = agendamento.getDataHoraAgendamento().plusHours(1);
+    public AgendamentoResponse salvarAgendamento(AgendamentoRequest request) {
+        Agendamento agendamento = toEntity(request);
 
-    Agendamento agendados = agendamentoRepository.findByServicoAndDataHoraAgendamentoBetween(agendamento.getServico(),horaAgendamento, horafim );
+        LocalDateTime inicio = agendamento.getDataHoraAgendamento();
+        LocalDateTime fim = inicio.plusHours(1);
 
-        if(Objects.nonNull(agendados)) {
-            throw new RuntimeException("Horário já está preenchido");
+        Agendamento conflito = agendamentoRepository.findByServicoAndDataHoraAgendamentoBetween(agendamento.getServico(), inicio, fim);
+
+        if (conflito != null) {
+            throw new AgendamentoException("Horário já está preenchido");
         }
-        return agendamentoRepository.save(agendamento);
+
+        Agendamento salvo = agendamentoRepository.save(agendamento);
+
+        return toResponse(salvo);
     }
 
     public void deletarAgendamento(LocalDateTime dataHoraAgendamento, String cliente) {
         agendamentoRepository.deleteByDataHoraAgendamentoAndCliente(dataHoraAgendamento, cliente);
     }
 
-    public List<Agendamento> buscarAgendamentosDia(LocalDate data){
-        LocalDateTime primeiraHoraDia = data.atStartOfDay();
-        LocalDateTime horaFinalDia = data.atTime(23, 59, 59);
+    public List<AgendamentoResponse> buscarAgendamentosDia(LocalDate data) {
+        LocalDateTime inicio = data.atStartOfDay();
+        LocalDateTime fim = data.atTime(23, 59, 59);
 
-        return agendamentoRepository.findByDataHoraAgendamentoBetween(primeiraHoraDia, horaFinalDia);
+        List<Agendamento> lista = agendamentoRepository.findByDataHoraAgendamentoBetween(inicio, fim);
+
+        return lista.stream().map(this::toResponse).toList();
     }
 
-    public Agendamento alterarAgendamento(Agendamento agendamento, String cliente, LocalDateTime dataHoraAgendamento){
+    public AgendamentoResponse alterarAgendamento(AgendamentoRequest request, String cliente, LocalDateTime dataHoraAgendamento) {
         Agendamento agenda = agendamentoRepository.findByDataHoraAgendamentoAndCliente(dataHoraAgendamento, cliente);
 
-        if(Objects.isNull(agenda)) {
-            throw new RuntimeException("Horário não está preenchido");
+        if (agenda == null) {
+            throw new AgendamentoException("Horário não está preenchido");
         }
-        agendamento.setId(agenda.getId());
-        return agendamentoRepository.save(agendamento);
+
+        Agendamento atualizado = toEntity(request);
+        atualizado.setId(agenda.getId());
+
+        Agendamento salvo = agendamentoRepository.save(atualizado);
+
+        return toResponse(salvo);
+    }
+
+    private Agendamento toEntity(AgendamentoRequest request) {
+        Agendamento agendamento = new Agendamento();
+        agendamento.setServico(request.getServico());
+        agendamento.setCliente(request.getCliente());
+        agendamento.setProfissional(request.getProfissional());
+        agendamento.setTelefone(request.getTelefone());
+        agendamento.setDataHoraAgendamento(request.getDataHoraAgendamento());
+        return agendamento;
+    }
+
+    private AgendamentoResponse toResponse(Agendamento agendamento) {
+        return new AgendamentoResponse(agendamento.getId(), agendamento.getCliente(), agendamento.getDataHoraAgendamento(), agendamento.getServico());
     }
 }
