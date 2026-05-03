@@ -74,6 +74,6 @@ public class AgendamentoService {
     }
 
     private AgendamentoResponse toResponse(Agendamento agendamento) {
-        return new AgendamentoResponse(agendamento.getId(), agendamento.getCliente(), agendamento.getDataHoraAgendamento(), agendamento.getServico());
+        return new AgendamentoResponse(agendamento.getId(), agendamento.getCliente(), agendamento.getDataHoraAgendamento(), agendamento.getServico(), agendamento.getProfissional(), agendamento.getTelefone());
     }
 }
