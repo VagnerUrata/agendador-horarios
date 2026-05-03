@@ -21,17 +21,19 @@ public class AgendamentoController {
 
     private final AgendamentoService agendamentoService;
 
-    @ApiResponse(responseCode = "200", description = "Agendamento criado com sucesso")
-    @ApiResponse(responseCode = "400", description = "Dados inválidos")
     @PostMapping
+    @ApiResponse(responseCode = "200", description = "Agendamento criado com sucesso")
+    @ApiResponse(responseCode = "400", description = "Erro de validação nos dados")
+    @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+
     @Operation(summary = "Criar um novo agendamento")
-    public ResponseEntity<AgendamentoResponse> saveAgendamento(@RequestBody @Valid AgendamentoRequest request) {
+    public ResponseEntity<AgendamentoResponse> salvarAgendamento(@RequestBody @Valid AgendamentoRequest request) {
         return ResponseEntity.accepted().body(agendamentoService.salvarAgendamento(request));
     }
 
     @DeleteMapping
     @Operation(summary = "Deletar agendamento")
-    public ResponseEntity<Void> deleteAgendamento(@RequestParam String cliente,
+    public ResponseEntity<Void> deletarAgendamento(@RequestParam String cliente,
                                                   @RequestParam LocalDateTime dataHoraAgendamento) {
 
         agendamentoService.deletarAgendamento(dataHoraAgendamento, cliente);
