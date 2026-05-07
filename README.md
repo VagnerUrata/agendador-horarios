@@ -1,149 +1,365 @@
 # 📅 Agendador de Horários
 
-API REST desenvolvida em Java com Spring Boot para gerenciamento de agendamentos.
+API REST desenvolvida com Java e Spring Boot para gerenciamento de agendamentos, autenticação JWT e controle de acesso.
 
 ---
 
-## 🚀 Tecnologias utilizadas
+# 🚀 Tecnologias utilizadas
 
-* Java 21
-* Spring Boot
-* Spring Data JPA
-* Lombok
-* H2 Database (atual)
-* MySQL (planejado)
-* Maven
-
----
-
-## 📌 Funcionalidades
-
-* ✅ Criar agendamento
-* ❌ Evitar conflito de horários (validação de intervalo)
-* 🔍 Buscar agendamentos por dia
-* ✏️ Alterar agendamento
-* 🗑️ Deletar agendamento
+- Java 21
+- Spring Boot 3
+- Spring Data JPA
+- Spring Security
+- JWT Authentication
+- Swagger / OpenAPI
+- Bean Validation
+- Lombok
+- MySQL
+- Maven
 
 ---
 
-## 🗄️ Banco de dados
+# 📌 Funcionalidades
 
-Atualmente o projeto utiliza o **H2 Database**, um banco em memória ideal para desenvolvimento e testes.
+## 📅 Agendamentos
 
-🔄 **Futuro:** o projeto será migrado para **MySQL**, visando persistência de dados em ambiente de produção.
+- ✅ Criar agendamento
+- ✅ Buscar agendamentos por dia
+- ✅ Atualizar agendamento
+- ✅ Deletar agendamento
+- ✅ Validação de conflitos de horário
+- ✅ Validação de datas futuras
+- ✅ Validação automática de campos obrigatórios
 
 ---
 
-## 📂 Estrutura do projeto
+## 🔐 Segurança
 
-```
+- ✅ Login com JWT
+- ✅ Senha criptografada com BCrypt
+- ✅ Proteção de endpoints com Spring Security
+- ✅ Autenticação via Bearer Token
+
+---
+
+## 📖 Documentação
+
+- ✅ Swagger/OpenAPI integrado
+- ✅ Exemplos de requests no Swagger
+- ✅ API Docs gerada automaticamente
+
+---
+
+# 🗄️ Banco de dados
+
+O projeto utiliza MySQL para persistência de dados.
+
+---
+
+# 📂 Estrutura do projeto
+
+```text
 src/main/java/com/javag/agendador_horarios
 │
+├── config
+│   └── OpenApiConfig
+│
 ├── controller
-├── service
+│   ├── AgendamentoController
+│   └── AuthController
+│
+├── dto
+│   ├── AgendamentoRequest
+│   ├── AgendamentoResponse
+│   ├── LoginRequest
+│   └── LoginResponse
+│
+├── exception
+│   ├── AgendamentoException
+│   └── GlobalExceptionHandler
+│
 ├── infrastructure
 │   ├── entity
+│   │   ├── Agendamento
+│   │   └── Usuario
+│   │
 │   └── repository
+│       ├── AgendamentoRepository
+│       └── UsuarioRepository
+│
+├── security
+│   ├── JwtFilter
+│   ├── JwtService
+│   ├── SecurityConfig
+│   └── CustomUserDetailsService
+│
+├── service
+│   ├── AgendamentoService
+│   └── AuthService
+│
+└── AgendadorHorariosApplication
 ```
 
 ---
 
-## 🔗 Endpoints
+# 🔗 Endpoints
 
-### ➕ Criar agendamento
+## 🔐 Autenticação
 
-**POST** `/agendamentos`
+### Login
+
+#### POST `/auth/login`
+
+##### Request
 
 ```json
 {
-  "servico": "Barba",
-  "profissional" : "barbeiro",
-  "cliente": "João",
-  "dataHoraAgendamento": "2026-04-24T10:00:00"
+  "username": "admin",
+  "password": "123456"
+}
+```
+
+##### Response
+
+```json
+{
+  "token": "eyJhbGciOiJIUzI1Ni..."
 }
 ```
 
 ---
 
-### 🔍 Buscar agendamentos por dia
+# 📅 Agendamentos
 
-**GET** `/agendamentos?data=2026-04-24`
+## ➕ Criar agendamento
 
----
+### POST `/agendamentos`
 
-### ✏️ Alterar agendamento
-
-**PUT** `/agendamentos?cliente=João&dataHoraAgendamento=2026-04-24T10:00:00`
+#### Request
 
 ```json
 {
   "servico": "Barba",
-  "profissional" : "barbeiro",
+  "profissional": "Barbeiro",
   "cliente": "João",
+  "telefone": "11999999999",
+  "dataHoraAgendamento": "2026-04-24T10:00:00"
+}
+```
+
+#### Response
+
+```json
+{
+  "id": 1,
+  "cliente": "João",
+  "dataHoraAgendamento": "2026-04-24T10:00:00",
+  "servico": "Barba"
+}
+```
+
+---
+
+## 🔍 Buscar agendamentos por dia
+
+### GET `/agendamentos?data=2026-04-24`
+
+#### Response
+
+```json
+[
+  {
+    "id": 1,
+    "cliente": "João",
+    "dataHoraAgendamento": "2026-04-24T10:00:00",
+    "servico": "Barba"
+  }
+]
+```
+
+---
+
+## ✏️ Atualizar agendamento
+
+### PUT `/agendamentos?cliente=João&dataHoraAgendamento=2026-04-24T10:00:00`
+
+#### Request
+
+```json
+{
+  "servico": "Barba",
+  "profissional": "Barbeiro",
+  "cliente": "João",
+  "telefone": "11999999999",
   "dataHoraAgendamento": "2026-04-24T11:00:00"
 }
 ```
 
 ---
 
-### 🗑️ Deletar agendamento
+## 🗑️ Deletar agendamento
 
-**DELETE** `/agendamentos?cliente=João&dataHoraAgendamento=2026-04-24T10:00:00`
-
----
-
-## ⚠️ Regras de negócio
-
-* Não é permitido criar agendamentos no mesmo horário para o mesmo serviço
-* Cada agendamento possui duração de 1 hora
-* O sistema valida conflitos utilizando intervalo de tempo
+### DELETE `/agendamentos?cliente=João&dataHoraAgendamento=2026-04-24T10:00:00`
 
 ---
 
-## ▶️ Como rodar o projeto
+# ⚠️ Regras de negócio
 
-### 1. Clonar o repositório
+- Não é permitido criar agendamentos conflitantes
+- Cada agendamento possui duração de 1 hora
+- Datas devem estar no futuro
+- Campos obrigatórios são validados automaticamente
+- O sistema valida conflitos utilizando intervalo de tempo
+
+---
+
+# 🔐 Autenticação JWT
+
+A API utiliza JWT para autenticação.
+
+Após realizar login:
+
+```http
+POST /auth/login
+```
+
+o sistema retorna um token JWT.
+
+Esse token deve ser enviado nas requisições protegidas:
+
+```http
+Authorization: Bearer SEU_TOKEN
+```
+
+---
+
+# 📖 Swagger / OpenAPI
+
+## Swagger UI
+
+```text
+http://localhost:8080/swagger-ui/index.html
+```
+
+---
+
+## API Docs
+
+```text
+http://localhost:8080/v3/api-docs
+```
+
+---
+
+# ▶️ Como rodar o projeto
+
+## 1️⃣ Clonar repositório
 
 ```bash
 git clone https://github.com/VagnerUrata/agendador-horarios.git
 ```
 
-### 2. Entrar na pasta
+---
+
+## 2️⃣ Entrar na pasta
 
 ```bash
 cd agendador-horarios
 ```
 
-### 3. Rodar aplicação
+---
+
+## 3️⃣ Criar banco MySQL
+
+```sql
+CREATE DATABASE agendador;
+```
+
+---
+
+## 4️⃣ Configurar application.properties
+
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/agendador
+spring.datasource.username=root
+spring.datasource.password=1234
+
+spring.jpa.hibernate.ddl-auto=update
+
+jwt.secret=minha-chave-super-secreta-com-32-bytes
+```
+
+---
+
+## 5️⃣ Rodar aplicação
 
 ```bash
 ./mvnw spring-boot:run
 ```
 
-Ou pela sua IDE (IntelliJ / VS Code)
+Ou executar diretamente pela IDE.
 
 ---
 
-## 🧪 Console do H2
+# 🧪 Usuário de teste
 
-Acesse:
+## Gerar hash BCrypt
 
+```java
+new BCryptPasswordEncoder().encode("123456")
 ```
-http://localhost:8080/h2-console
+
+---
+
+## Inserir usuário
+
+```sql
+INSERT INTO usuario(username, password)
+VALUES (
+    'admin',
+    '$2a$10$HASH_GERADO'
+);
 ```
 
 ---
 
-## 📌 Melhorias futuras
+# 🛡️ Tratamento global de exceções
 
-* Migração para MySQL
-* Autenticação com JWT
-* Paginação de resultados
-* Testes unitários
-* Deploy em nuvem
+A API possui tratamento global utilizando:
+
+- `@RestControllerAdvice`
+- `@ExceptionHandler`
+
+Tratando:
+
+- Erros de validação
+- Regras de negócio
+- Erros internos do servidor
 
 ---
 
-## 👨‍💻 Autor
+# 📌 Melhorias futuras
 
-Projeto desenvolvido para estudo e prática com Spring Boot.
+- Cadastro de usuários
+- Roles (ADMIN / USER)
+- Refresh Token
+- Docker
+- Deploy em nuvem
+- Testes unitários
+- Paginação
+- Logs centralizados
+- Observabilidade
+- Rate limiting
+
+---
+
+# 👨‍💻 Autor
+
+Projeto desenvolvido por Vagner Urata para estudo e prática de desenvolvimento backend utilizando:
+
+- Java
+- Spring Boot
+- Spring Security
+- JWT
+- APIs REST
+- Arquitetura Backend
