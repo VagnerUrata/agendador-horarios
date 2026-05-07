@@ -71,8 +71,7 @@ src/main/java/com/javag/agendador_horarios
 ├── dto
 │   ├── AgendamentoRequest
 │   ├── AgendamentoResponse
-│   ├── LoginRequest
-│   └── LoginResponse
+│   └── LoginRequest
 │
 ├── exception
 │   ├── AgendamentoException
@@ -94,8 +93,7 @@ src/main/java/com/javag/agendador_horarios
 │   └── CustomUserDetailsService
 │
 ├── service
-│   ├── AgendamentoService
-│   └── AuthService
+│   └── AgendamentoService
 │
 └── AgendadorHorariosApplication
 ```
